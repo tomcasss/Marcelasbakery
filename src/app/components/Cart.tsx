@@ -11,9 +11,10 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: number, quantity: number) => void;
   onRemoveItem: (id: number) => void;
+  onCheckout?: () => void;
 }
 
-export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartProps) {
+export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleWhatsAppOrder = () => {
@@ -35,7 +36,7 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
       <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b bg-[#ce733e] text-white">
+        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white">
           <div>
             <h2 className="text-2xl">Tu Carrito</h2>
             <p className="text-sm text-white/90">{items.length} {items.length === 1 ? 'producto' : 'productos'}</p>
@@ -62,7 +63,7 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-lg p-4 border-2 border-[#ce733e]"
+                  className="bg-white rounded-lg p-4 border-2 border-[#cd733d] shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex gap-4">
                     <img
@@ -72,7 +73,7 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-[#ce733e] truncate pr-2">{item.name}</h3>
+                        <h3 className="text-[#cd733d] font-semibold truncate pr-2">{item.name}</h3>
                         <button
                           onClick={() => onRemoveItem(item.id)}
                           className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
@@ -80,7 +81,7 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-sm text-[#ce733e] mb-3">
+                      <p className="text-sm text-[#cd733d] font-medium mb-3">
                         ₡{item.price.toLocaleString()}
                       </p>
                       <div className="flex items-center gap-3">
@@ -119,20 +120,35 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
                 <span>₡{total.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t">
-                <span className="text-lg text-gray-900">Total</span>
-                <span className="text-2xl text-[#ce733e]">
+                <span className="text-lg font-semibold text-gray-900">Total</span>
+                <span className="text-2xl font-bold text-[#cd733d]">
                   ₡{total.toLocaleString()}
                 </span>
               </div>
             </div>
             <button 
-              onClick={handleWhatsAppOrder}
-              className="w-full bg-[#ce733e] text-white py-4 rounded-md hover:bg-[#b35f2f] transition-colors"
+              onClick={() => {
+                if (onCheckout) {
+                  onCheckout();
+                  onClose();
+                }
+              }}
+              className="w-full bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white py-4 rounded-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group font-semibold"
             >
-              Ordenar por WhatsApp
+              <span>Proceder al Pago</span>
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button 
+              onClick={handleWhatsAppOrder}
+              className="w-full bg-white border-2 border-[#25D366] text-[#25D366] py-3 rounded-lg hover:bg-[#25D366] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 font-semibold"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span>Consultar por WhatsApp</span>
             </button>
             <p className="text-xs text-center text-gray-500">
-              Serás redirigido a WhatsApp para completar tu pedido
+              💳 Pagos seguros con tarjeta, SINPE o transferencia
             </p>
           </div>
         )}

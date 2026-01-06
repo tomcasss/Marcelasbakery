@@ -2,16 +2,20 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { ScrollToTop } from './components/ScrollToTop';
 import { Cart, CartItem } from './components/Cart';
+import { CheckoutProvider } from './context/CheckoutContext';
 import { Product } from './components/Catalog';
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { CateringPage } from './pages/CateringPage';
 import { ContactPage } from './pages/ContactPage';
+import { CheckoutPage } from './pages/CheckoutPage';
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const handleAddToCart = (product: Product) => {
@@ -43,19 +47,39 @@ export default function App() {
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = () => {
+    setCheckoutOpen(true);
+  };
+
+  const handleCloseCheckout = () => {
+    setCheckoutOpen(false);
+    setCartItems([]);
+  };
 
   return (
-    <Router>
-      <div className="min-h-screen bg-white flex flex-col">
+    <CheckoutProvider>
+      <Router>
+        <ScrollToTop />
+        <div className="min-h-screen bg-white flex flex-col">
         <Header cartItemsCount={totalItems} onCartClick={() => setCartOpen(true)} />
         <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/sobre-nosotros" element={<AboutPage />} />
-            <Route path="/catalogo" element={<CatalogPage onAddToCart={handleAddToCart} />} />
-            <Route path="/catering" element={<CateringPage />} />
-            <Route path="/contacto" element={<ContactPage />} />
-          </Routes>
+          {checkoutOpen ? (
+            <CheckoutPage 
+              items={cartItems} 
+              total={total} 
+              onClose={handleCloseCheckout}
+            />
+          ) : (
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/sobre-nosotros" element={<AboutPage />} />
+              <Route path="/catalogo" element={<CatalogPage onAddToCart={handleAddToCart} />} />
+              <Route path="/catering" element={<CateringPage />} />
+              <Route path="/contacto" element={<ContactPage />} />
+            </Routes>
+          )}
         </main>
         <Footer />
         <Cart
@@ -64,8 +88,10 @@ export default function App() {
           items={cartItems}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
+          onCheckout={handleCheckout}
         />
       </div>
-    </Router>
+      </Router>
+    </CheckoutProvider>
   );
 }

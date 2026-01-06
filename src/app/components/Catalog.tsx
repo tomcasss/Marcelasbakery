@@ -167,7 +167,7 @@ export function Catalog({ onAddToCart }: CatalogProps) {
     <section className="bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-4xl text-[#ce733e] mb-4">Catálogo</h2>
+          <h2 className="text-4xl font-serif text-gray-900 mb-4">Catálogo</h2>
           <p className="text-gray-700 max-w-2xl mx-auto text-lg">
             Descubre nuestra deliciosa selección de platillos preparados con amor
           </p>
@@ -182,7 +182,7 @@ export function Catalog({ onAddToCart }: CatalogProps) {
               placeholder="Buscar productos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-md border-2 border-[#ce733e] focus:outline-none focus:border-[#b35f2f]"
+              className="w-full pl-12 pr-4 py-3 rounded-lg border-2 border-[#cd733d] focus:outline-none focus:ring-2 focus:ring-[#cd733d]/50 focus:border-[#cd733d]"
             />
           </div>
         </div>
@@ -193,10 +193,10 @@ export function Catalog({ onAddToCart }: CatalogProps) {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2.5 rounded-md transition-all ${
+              className={`px-6 py-2.5 rounded-lg transition-all font-semibold ${
                 selectedCategory === category
-                  ? 'bg-[#ce733e] text-white'
-                  : 'bg-white text-gray-700 border-2 border-[#ce733e] hover:bg-[#FFF8F0]'
+                  ? 'bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white shadow-lg scale-105'
+                  : 'bg-white text-gray-700 border-2 border-[#cd733d] hover:bg-[#FFF8F0] hover:scale-105'
               }`}
             >
               {category}
@@ -209,28 +209,28 @@ export function Catalog({ onAddToCart }: CatalogProps) {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-lg overflow-hidden border-2 border-[#ce733e] hover:shadow-lg transition-all"
+              className="group bg-white rounded-xl overflow-hidden border-2 border-[#cd733d]/20 hover:border-[#cd733d] hover:shadow-2xl transition-all duration-300"
             >
               <div className="relative h-56 overflow-hidden bg-gray-100">
                 <ImageWithFallback
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute top-3 right-3 bg-[#ce733e] text-white px-3 py-1 rounded-md text-sm">
+                <div className="absolute top-3 right-3 bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white px-3 py-1 rounded-lg text-sm font-semibold shadow-md">
                   {product.category}
                 </div>
               </div>
-              <div className="p-5 bg-[#FFF8F0]">
-                <h3 className="text-lg text-[#ce733e] mb-2">{product.name}</h3>
+              <div className="p-5 bg-gradient-to-br from-[#FFF8F0] to-white">
+                <h3 className="text-lg font-semibold text-[#cd733d] mb-2">{product.name}</h3>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xl text-[#ce733e]">
+                  <span className="text-xl font-bold text-[#cd733d]">
                     ₡{product.price.toLocaleString()}
                   </span>
                   <button
                     onClick={() => onAddToCart(product)}
-                    className="bg-[#ce733e] text-white p-2.5 rounded-md hover:bg-[#b35f2f] transition-all"
+                    className="bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white p-2.5 rounded-lg hover:shadow-lg hover:scale-110 transition-all duration-300"
                   >
                     <Plus className="w-5 h-5" />
                   </button>

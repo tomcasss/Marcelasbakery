@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export function Footer() {
   return (
-    <footer className="bg-[#ce733e] text-white">
+    <footer className="bg-gradient-to-br from-[#cd733d] to-[#b35f2f] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
@@ -57,8 +57,8 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <a href="mailto:marcelabakery@gmail.com" className="hover:text-white transition-colors break-all">
-                  marcelabakery@gmail.com
+                <a href="mailto:marcelasbakery@gmail.com" className="hover:text-white transition-colors break-all">
+                  marcelasbakery@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-2">

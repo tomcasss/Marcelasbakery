@@ -1,0 +1,29 @@
+/* Fuentes para La Gracia by Marcela's Bakery */
+/* Playfair Display - Serif elegante para títulos */
+/* Inter - Sans-serif moderna para cuerpo */
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Aplicar fuente serif a títulos */
+h1, h2, h3, h4, h5, h6,
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Clases de utilidad para fuentes */
+.font-sans {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Suavizado de texto para mejor legibilidad */
+* {
+  text-rendering: optimizeLegibility;
+}

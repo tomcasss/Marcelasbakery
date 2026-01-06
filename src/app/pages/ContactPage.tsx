@@ -51,8 +51,8 @@ export function ContactPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Email</p>
-                    <a href="mailto:marcelabakery@gmail.com" className="text-lg text-[#ce733e] hover:underline">
-                      marcelabakery@gmail.com
+                    <a href="mailto:marcelasbakery@gmail.com" className="text-lg text-[#ce733e] hover:underline">
+                      marcelasbakery@gmail.com
                     </a>
                   </div>
                 </div>

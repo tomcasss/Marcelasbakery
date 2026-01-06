@@ -14,53 +14,53 @@ export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm shadow-sm border-b border-[#cd733d]/10 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex flex-col">
-            <span className="text-2xl text-gray-900">La Gracia</span>
-            <span className="text-xs text-[#ce733e]">by Marcela's Bakery</span>
+          <Link to="/" className="flex flex-col group">
+            <span className="text-2xl font-serif text-gray-900 group-hover:text-[#cd733d] transition-colors">La Gracia</span>
+            <span className="text-xs text-[#cd733d] font-medium">by Marcela's Bakery</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className={`${isActive('/') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-[#cd733d] after:transition-all`}
             >
               Inicio
             </Link>
             <Link
               to="/sobre-nosotros"
-              className={`${isActive('/sobre-nosotros') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/sobre-nosotros') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-[#cd733d] after:transition-all`}
             >
               Sobre Nosotros
             </Link>
             <Link
               to="/catalogo"
-              className={`${isActive('/catalogo') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/catalogo') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-[#cd733d] after:transition-all`}
             >
               Catálogo
             </Link>
             <Link
               to="/catering"
-              className={`${isActive('/catering') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/catering') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-[#cd733d] after:transition-all`}
             >
               Catering Service
             </Link>
             <Link
               to="/contacto"
-              className={`${isActive('/contacto') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/contacto') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-[#cd733d] after:transition-all`}
             >
               Contacto
             </Link>
             <button
               onClick={onCartClick}
-              className="relative bg-[#ce733e] text-white px-4 py-2 rounded-md hover:bg-[#b35f2f] transition-colors flex items-center gap-2"
+              className="relative bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white px-4 py-2 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
               <ShoppingCart className="w-5 h-5" />
               {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#dd667d] text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-md animate-bounce">
                   {cartItemsCount}
                 </span>
               )}
@@ -71,11 +71,11 @@ export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
           <div className="md:hidden flex items-center gap-4">
             <button
               onClick={onCartClick}
-              className="relative bg-[#ce733e] text-white p-2 rounded-md"
+              className="relative bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white p-2 rounded-lg hover:shadow-lg transition-all"
             >
               <ShoppingCart className="w-5 h-5" />
               {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#dd667d] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">
                   {cartItemsCount}
                 </span>
               )}
@@ -95,35 +95,35 @@ export function Header({ cartItemsCount, onCartClick }: HeaderProps) {
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className={`${isActive('/') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors`}
             >
               Inicio
             </Link>
             <Link
               to="/sobre-nosotros"
               onClick={() => setMobileMenuOpen(false)}
-              className={`${isActive('/sobre-nosotros') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/sobre-nosotros') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors`}
             >
               Sobre Nosotros
             </Link>
             <Link
               to="/catalogo"
               onClick={() => setMobileMenuOpen(false)}
-              className={`${isActive('/catalogo') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/catalogo') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors`}
             >
               Catálogo
             </Link>
             <Link
               to="/catering"
               onClick={() => setMobileMenuOpen(false)}
-              className={`${isActive('/catering') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/catering') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors`}
             >
               Catering Service
             </Link>
             <Link
               to="/contacto"
               onClick={() => setMobileMenuOpen(false)}
-              className={`${isActive('/contacto') ? 'text-[#ce733e]' : 'text-gray-700'} hover:text-[#ce733e] transition-colors`}
+              className={`${isActive('/contacto') ? 'text-[#cd733d] font-semibold' : 'text-gray-700'} hover:text-[#cd733d] transition-colors`}
             >
               Contacto
             </Link>
