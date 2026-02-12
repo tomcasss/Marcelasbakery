@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../components/Cart';
 import { useCheckout } from '../context/CheckoutContext';
-import { CreditCard, Smartphone, Building2, ArrowLeft, ShoppingBag, Calendar, MapPin, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { CreditCard, Smartphone, Building2, ArrowLeft, ShoppingBag, Calendar, MapPin, User, Mail, Phone, MessageSquare, Upload, X as XIcon } from 'lucide-react';
 
 interface CheckoutPageProps {
   items: CartItem[];
@@ -34,6 +34,9 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
     expiryDate: '',
     cvv: '',
   });
+
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -70,6 +73,42 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
       ...cardData,
       [e.target.name]: value,
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validar tamaño (máx 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo es muy grande. Máximo 5MB.');
+        return;
+      }
+      
+      // Validar tipo
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        alert('Formato no válido. Solo JPG, PNG o PDF.');
+        return;
+      }
+      
+      setPaymentProof(file);
+      
+      // Crear preview para imágenes
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPaymentProofPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setPaymentProofPreview('pdf');
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setPaymentProof(null);
+    setPaymentProofPreview('');
   };
 
   const validateStep1 = () => {
@@ -111,8 +150,20 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
         
         setStep(3);
       } else {
-        // Para SINPE/Transferencia, crear orden y mostrar instrucciones
+        // Para SINPE/Transferencia, validar comprobante
+        if (!paymentProof) {
+          alert('Por favor sube tu comprobante de pago antes de continuar');
+          setProcessing(false);
+          return;
+        }
+
+        // Aquí se subiría el comprobante al backend
+        // Por ahora simulamos el envío
+        await simulatePayment(1500);
+        
+        // Crear orden con estado pendiente
         const order = await createOrder(items, total, paymentMethod);
+        
         setStep(3);
       }
     } catch (error) {
@@ -357,7 +408,7 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                     <Smartphone className="w-6 h-6 text-[#369db1]" />
                     <div className="text-left flex-1">
                       <p className="font-semibold">SINPE Móvil</p>
-                      <p className="text-sm text-gray-500">Adelanto 50%, resto contra entrega</p>
+                      <p className="text-sm text-gray-500">Pago 100% anticipado</p>
                     </div>
                   </button>
 
@@ -372,7 +423,7 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                     <Building2 className="w-6 h-6 text-[#6d63ab]" />
                     <div className="text-left flex-1">
                       <p className="font-semibold">Transferencia Bancaria</p>
-                      <p className="text-sm text-gray-500">Adelanto 50%, resto contra entrega</p>
+                      <p className="text-sm text-gray-500">Pago 100% anticipado</p>
                     </div>
                   </button>
                 </div>
@@ -445,18 +496,86 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                     <h3 className="font-semibold text-gray-900 mb-3">
                       Instrucciones de Pago
                     </h3>
-                    <div className="space-y-2 text-sm text-gray-700">
-                      <p>1. Realiza el pago del <strong>50% (₡{(finalTotal / 2).toLocaleString()})</strong> del total</p>
+                    <div className="space-y-2 text-sm text-gray-700 mb-4">
+                      <p>1. Realiza el pago del <strong>100% (₡{finalTotal.toLocaleString()})</strong></p>
                       {paymentMethod === 'sinpe' && (
-                        <p>2. SINPE al número: <strong className="text-[#cd733d]">8415-2888</strong></p>
+                        <>
+                          <p>2. SINPE al número: <strong className="text-[#cd733d]">8415-2888</strong></p>
+                          <p>3. Nombre: <strong>Marcela Sánchez</strong></p>
+                        </>
                       )}
                       {paymentMethod === 'transfer' && (
-                        <p>2. Te enviaremos los datos bancarios por correo</p>
+                        <>
+                          <p>2. Banco: <strong>Banco Nacional de Costa Rica</strong></p>
+                          <p>3. Cuenta IBAN: <strong>[Agregar IBAN aquí]</strong></p>
+                          <p>4. A nombre de: <strong>Marcela Sánchez</strong></p>
+                        </>
                       )}
-                      <p>3. El 50% restante se paga contra entrega/retiro</p>
-                      <p className="text-xs text-gray-500 mt-3">
-                        📸 Envía tu comprobante al WhatsApp para confirmar tu pedido
+                      <p className="font-semibold text-[#cd733d] mt-3">
+                        4. Sube tu comprobante de pago abajo 👇
                       </p>
+                    </div>
+
+                    {/* Upload de comprobante */}
+                    <div className="border-2 border-dashed border-[#cd733d]/30 rounded-lg p-6">
+                      {!paymentProof ? (
+                        <label className="cursor-pointer flex flex-col items-center">
+                          <Upload className="w-12 h-12 text-[#cd733d] mb-2" />
+                          <span className="text-sm font-semibold text-gray-700 mb-1">
+                            Subir comprobante de pago
+                          </span>
+                          <span className="text-xs text-gray-500 mb-3">
+                            JPG, PNG o PDF (máx. 5MB)
+                          </span>
+                          <span className="bg-[#cd733d] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#b35f2f] transition-colors">
+                            Seleccionar archivo
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,application/pdf"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </label>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="flex items-center gap-3">
+                              {paymentProofPreview === 'pdf' ? (
+                                <div className="w-12 h-12 bg-red-100 rounded flex items-center justify-center">
+                                  <span className="text-xs font-bold text-red-600">PDF</span>
+                                </div>
+                              ) : (
+                                <img
+                                  src={paymentProofPreview}
+                                  alt="Preview"
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              )}
+                              <div>
+                                <p className="text-sm font-semibold text-gray-700">
+                                  {paymentProof.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {(paymentProof.size / 1024).toFixed(2)} KB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={handleRemoveFile}
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              <XIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                          <p className="text-xs text-green-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Comprobante cargado correctamente
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -493,8 +612,8 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                 
                 <p className="text-gray-600 mb-6">
                   {paymentMethod === 'card' 
-                    ? 'Tu pago ha sido procesado exitosamente.'
-                    : 'Hemos recibido tu pedido. Te enviaremos las instrucciones de pago por email.'}
+                    ? 'Tu pago ha sido procesado exitosamente. Recibirás un email de confirmación.'
+                    : 'Hemos recibido tu pedido y comprobante. Lo verificaremos y te confirmaremos por email en las próximas horas.'}
                 </p>
 
                 <div className="bg-[#FFF8F0] rounded-lg p-6 mb-6 text-left">
@@ -518,23 +637,23 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                 </div>
 
                 <div className="space-y-3">
-                  <a
-                    href="https://wa.me/50684152888"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full bg-[#25D366] text-white py-4 rounded-lg hover:shadow-lg transition-all font-semibold"
-                  >
-                    Contactar por WhatsApp
-                  </a>
                   <button
                     onClick={() => {
                       onClose();
                       navigate('/');
                     }}
-                    className="block w-full border-2 border-[#cd733d] text-[#cd733d] py-4 rounded-lg hover:bg-[#cd733d]/5 transition-all font-semibold"
+                    className="block w-full bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white py-4 rounded-lg hover:shadow-xl transition-all font-semibold"
                   >
                     Volver al Inicio
                   </button>
+                  <a
+                    href="https://wa.me/50684152888?text=Hola,%20tengo%20una%20consulta%20sobre%20mi%20pedido"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full border-2 border-[#25D366] text-[#25D366] py-4 rounded-lg hover:bg-[#25D366]/5 transition-all font-semibold text-center"
+                  >
+                    ¿Dudas? Contactar por WhatsApp
+                  </a>
                 </div>
               </div>
             )}

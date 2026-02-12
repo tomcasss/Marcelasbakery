@@ -51,6 +51,7 @@ export default function App() {
 
   const handleCheckout = () => {
     setCheckoutOpen(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCloseCheckout = () => {
@@ -62,9 +63,9 @@ export default function App() {
     <CheckoutProvider>
       <Router>
         <ScrollToTop />
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
         <Header cartItemsCount={totalItems} onCartClick={() => setCartOpen(true)} />
-        <main className="flex-1">
+        <main className="flex-1 overflow-x-hidden">
           {checkoutOpen ? (
             <CheckoutPage 
               items={cartItems} 

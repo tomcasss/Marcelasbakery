@@ -17,19 +17,6 @@ interface CartProps {
 export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleWhatsAppOrder = () => {
-    let message = '¡Hola! Me gustaría ordenar lo siguiente:\n\n';
-    
-    items.forEach((item) => {
-      message += `• ${item.name} x${item.quantity} - ₡${(item.price * item.quantity).toLocaleString()}\n`;
-    });
-    
-    message += `\nTotal: ₡${total.toLocaleString()}`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/50684152888?text=${encodedMessage}`, '_blank');
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -140,15 +127,17 @@ export function Cart({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem, o
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <button 
-              onClick={handleWhatsAppOrder}
+            <a 
+              href="https://wa.me/50684152888?text=Hola!%20Tengo%20una%20consulta%20sobre%20los%20productos"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full bg-white border-2 border-[#25D366] text-[#25D366] py-3 rounded-lg hover:bg-[#25D366] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 font-semibold"
             >
               <MessageCircle className="w-5 h-5" />
-              <span>Consultar por WhatsApp</span>
-            </button>
+              <span>¿Dudas? Consultar por WhatsApp</span>
+            </a>
             <p className="text-xs text-center text-gray-500">
-              💳 Pagos seguros con tarjeta, SINPE o transferencia
+              💳 Pago 100% anticipado - Tarjeta, SINPE o Transferencia
             </p>
           </div>
         )}
