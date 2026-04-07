@@ -2,10 +2,13 @@
 
 const ingredientSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    unit: { type: String, default: "g" },
-    unitPrice: { type: Number, required: true },
+    name:         { type: String, required: true },
+    quantity:     { type: Number, required: true },
+    unit:         { type: String, default: "g" },
+    // Reference to the ingredient catalog (optional — allows lookup of live price)
+    ingredientId: { type: mongoose.Schema.Types.ObjectId, ref: "Ingredient", default: null },
+    // Snapshot price used at the time of calculation; fallback when no ingredientId
+    unitPrice:    { type: Number, default: 0 },
   },
   { _id: false }
 );

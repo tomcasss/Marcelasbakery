@@ -64,17 +64,35 @@ export interface RecipeIngredient {
   unitPrice: number;
 }
 
+export interface RecipeIngredientRef extends RecipeIngredient {
+  ingredientId?: string; // referencia al catálogo
+}
+
 export interface Recipe {
   _id: string;
   name: string;
   category: string;
   description: string;
-  ingredients: RecipeIngredient[];
+  ingredients: RecipeIngredientRef[];
   laborMinutes: number;
   laborRatePerHour: number;
   batchSize: number;
   overheadPercent: number;
   profitMargin: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Ingredient {
+  _id: string;
+  name: string;
+  unit: string;
+  unitPrice: number;
+  category: string;
+  notes: string;
+  packagePrice?: number;
+  packageQuantity?: number;
+  packageUnit?: string;
   createdAt: string;
   updatedAt: string;
 }

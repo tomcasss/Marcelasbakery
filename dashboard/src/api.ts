@@ -149,7 +149,7 @@ export async function updateSiteConfigKey(key: string, value: string): Promise<v
 
 // ── Recetas / Costos ───────────────────────────────────────────────────────────
 
-import type { Recipe } from './types';
+import type { Recipe, Ingredient } from './types';
 
 export async function fetchRecipes(): Promise<Recipe[]> {
   const res = await fetch(`${API_URL}/api/admin/recipes`, { headers });
@@ -189,4 +189,33 @@ export async function deleteRecipe(id: string): Promise<void> {
     headers,
   });
   if (!res.ok) throw new Error('Error al eliminar receta');
+}
+
+// ── Ingredientes / Catálogo ────────────────────────────────────────────────────
+
+export async function fetchIngredients(): Promise<Ingredient[]> {
+  const res = await fetch(`${API_URL}/api/admin/ingredients`, { headers });
+  if (!res.ok) throw new Error('Error al cargar ingredientes');
+  return res.json();
+}
+
+export async function createIngredient(data: Omit<Ingredient, '_id' | 'createdAt' | 'updatedAt'>): Promise<Ingredient> {
+  const res = await fetch(`${API_URL}/api/admin/ingredients`, {
+    method: 'POST', headers, body: JSON.stringify(data),
+  });
+  if (!res.ok) { const err = await res.json().catch(() => ({ error: res.statusText })); throw new Error(err.error || 'Error al crear ingrediente'); }
+  return res.json();
+}
+
+export async function updateIngredient(id: string, data: Partial<Omit<Ingredient, '_id' | 'createdAt' | 'updatedAt'>>): Promise<Ingredient> {
+  const res = await fetch(`${API_URL}/api/admin/ingredients/${id}`, {
+    method: 'PUT', headers, body: JSON.stringify(data),
+  });
+  if (!res.ok) { const err = await res.json().catch(() => ({ error: res.statusText })); throw new Error(err.error || 'Error al actualizar ingrediente'); }
+  return res.json();
+}
+
+export async function deleteIngredient(id: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/admin/ingredients/${id}`, { method: 'DELETE', headers });
+  if (!res.ok) throw new Error('Error al eliminar ingrediente');
 }

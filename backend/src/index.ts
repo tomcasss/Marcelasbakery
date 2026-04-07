@@ -9,6 +9,7 @@ import { productsRouter } from './routes/products.js';
 import { uploadRouter } from './routes/upload.js';
 import { configRouter } from './routes/config.js';
 import { recipesRouter } from './routes/recipes.js';
+import { ingredientsRouter } from './routes/ingredients.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,6 +35,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/config', configRouter);
 app.use('/api/admin/recipes', recipesRouter);
+app.use('/api/admin/ingredients', ingredientsRouter);
 
 connectDb()
   .then(() => {

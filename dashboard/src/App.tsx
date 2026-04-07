@@ -6,6 +6,10 @@ import { OrderDetail } from './components/OrderDetail';
 import { ProductsPanel } from './components/ProductsPanel';
 import { SiteImagesPanel } from './components/SiteImagesPanel';
 import { CostCalculatorPanel } from './components/CostCalculatorPanel';
+import { IngredientsPanel } from './components/IngredientsPanel';
+import { LoginPage } from './components/LoginPage';
+
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'admin123';
 
 const ORDER_STATUS_FILTER = [
   { value: 'all', label: 'Todos' },
@@ -24,7 +28,26 @@ const PAYMENT_STATUS_FILTER = [
 ];
 
 export default function App() {
-  const [view, setView] = useState<'orders' | 'products' | 'site' | 'costs'>('orders');
+  const [authenticated, setAuthenticated] = useState(() =>
+    localStorage.getItem('dashboard_key') === ADMIN_KEY
+  );
+
+  if (!authenticated) {
+    return <LoginPage onLogin={() => setAuthenticated(true)} />;
+  }
+
+  return (
+    <DashboardApp
+      onLogout={() => {
+        localStorage.removeItem('dashboard_key');
+        setAuthenticated(false);
+      }}
+    />
+  );
+}
+
+function DashboardApp({ onLogout }: { onLogout: () => void }) {
+  const [view, setView] = useState<'orders' | 'products' | 'site' | 'costs' | 'ingredients'>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -101,6 +124,14 @@ export default function App() {
                 📦 Pedidos
               </button>
               <button
+                onClick={() => setView('ingredients')}
+                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${
+                  view === 'ingredients' ? 'bg-white shadow text-[#cd733d]' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                🥕 Ingredientes
+              </button>
+              <button
                 onClick={() => setView('products')}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${
                   view === 'products' ? 'bg-white shadow text-[#cd733d]' : 'text-gray-500 hover:text-gray-700'
@@ -135,12 +166,21 @@ export default function App() {
                 Actualizar
               </button>
             )}
+            <button
+              onClick={onLogout}
+              className="text-sm text-gray-400 hover:text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Cerrar sesión"
+            >
+              Salir
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {view === 'products' ? (
+        {view === 'ingredients' ? (
+          <IngredientsPanel />
+        ) : view === 'products' ? (
           <ProductsPanel />
         ) : view === 'site' ? (
           <SiteImagesPanel />

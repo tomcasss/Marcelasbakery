@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: lagracia-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # ── Base de datos ──────────────────────────────────────────────
+      - key: MONGODB_URI
+        sync: false          # pegar en Render Dashboard
+      # ── Autenticación admin ────────────────────────────────────────
+      - key: ADMIN_KEY
+        sync: false          # contraseña del panel
+      # ── Email ─────────────────────────────────────────────────────
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      # ── CORS: URLs de producción ───────────────────────────────────
+      - key: FRONTEND_URL
+        sync: false          # ej: https://lagracia.vercel.app
+      - key: DASHBOARD_URL
+        sync: false          # ej: https://lagracia-admin.vercel.app
+      # ── Cloudinary ────────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # ── Tilopay ───────────────────────────────────────────────────
+      - key: TILOPAY_API_USER
+        sync: false
+      - key: TILOPAY_API_PASSWORD
+        sync: false
+      - key: TILOPAY_KEY
+        sync: false
+      # ── Stripe ────────────────────────────────────────────────────
+      - key: STRIPE_SECRET_KEY
+        sync: false

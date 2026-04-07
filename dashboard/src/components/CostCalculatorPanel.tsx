@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from "react";
-import type { Recipe, RecipeIngredient } from "../types";
-import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from "../api";
+import type { Recipe, RecipeIngredient, RecipeIngredientRef, Ingredient } from "../types";
+import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe, fetchIngredients } from "../api";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Helpers de costo
@@ -31,7 +31,7 @@ const fmt = (n: number) =>
 const UNITS = ["g", "kg", "ml", "L", "unidad", "taza", "cdta", "cda", "oz"];
 const CATEGORIES = ["Repostería", "Panadería", "Platos Fuertes", "Postres", "Bebidas", "Otros"];
 
-const EMPTY_INGREDIENT: RecipeIngredient = {
+const EMPTY_INGREDIENT: RecipeIngredientRef = {
   name: "",
   quantity: 1,
   unit: "g",
@@ -58,23 +58,54 @@ function IngredientRow({
   ing,
   index,
   onChange,
+  onCatalogSelect,
   onRemove,
   canRemove,
+  catalogIngredients,
 }: {
-  ing: RecipeIngredient;
+  ing: RecipeIngredientRef;
   index: number;
   onChange: (i: number, field: keyof RecipeIngredient, val: string | number) => void;
+  onCatalogSelect: (i: number, catalogIng: Ingredient | null) => void;
   onRemove: (i: number) => void;
   canRemove: boolean;
+  catalogIngredients: Ingredient[];
 }) {
+  const selectValue = ing.ingredientId || (ing.name ? "__manual__" : "");
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === "__manual__" || val === "") {
+      onCatalogSelect(index, null);
+    } else {
+      const found = catalogIngredients.find((ci) => ci._id === val) || null;
+      onCatalogSelect(index, found);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-12 gap-2 items-center">
-      <input
-        className="col-span-4 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cd733d]"
-        placeholder="Ingrediente"
-        value={ing.name}
-        onChange={(e) => onChange(index, "name", e.target.value)}
-      />
+    <div className="grid grid-cols-12 gap-2 items-start">
+      <div className="col-span-4 space-y-1">
+        <select
+          className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cd733d]"
+          value={selectValue}
+          onChange={handleSelectChange}
+        >
+          <option value="">-- Seleccionar del catálogo --</option>
+          {catalogIngredients.map((ci) => (
+            <option key={ci._id} value={ci._id}>{ci.name} ({ci.unit})</option>
+          ))}
+          <option value="__manual__">✏️ Ingresar manualmente</option>
+        </select>
+        {!ing.ingredientId && (
+          <input
+            className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cd733d]"
+            placeholder="Nombre del ingrediente"
+            value={ing.name}
+            onChange={(e) => onChange(index, "name", e.target.value)}
+          />
+        )}
+      </div>
       <input
         type="number"
         min={0}
@@ -130,6 +161,11 @@ function RecipeModal({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [catalogIngredients, setCatalogIngredients] = useState<Ingredient[]>([]);
+
+  useEffect(() => {
+    fetchIngredients().then(setCatalogIngredients).catch(() => {});
+  }, []);
 
   const set = (field: string, val: unknown) =>
     setForm((f) => ({ ...f, [field]: val }));
@@ -147,6 +183,18 @@ function RecipeModal({
 
   const removeIngredient = (i: number) =>
     setForm((f) => ({ ...f, ingredients: f.ingredients.filter((_, idx) => idx !== i) }));
+
+  const handleCatalogSelect = (i: number, catalogIng: Ingredient | null) => {
+    setForm((f) => {
+      const ings = [...f.ingredients] as RecipeIngredientRef[];
+      if (catalogIng) {
+        ings[i] = { ...ings[i], ingredientId: catalogIng._id, name: catalogIng.name, unit: catalogIng.unit, unitPrice: catalogIng.unitPrice };
+      } else {
+        ings[i] = { ...ings[i], ingredientId: undefined };
+      }
+      return { ...f, ingredients: ings };
+    });
+  };
 
   const costs = calcCosts(form);
 
@@ -245,8 +293,10 @@ function RecipeModal({
                   ing={ing}
                   index={i}
                   onChange={setIngredient}
+                  onCatalogSelect={handleCatalogSelect}
                   onRemove={removeIngredient}
                   canRemove={form.ingredients.length > 1}
+                  catalogIngredients={catalogIngredients}
                 />
               ))}
             </div>
