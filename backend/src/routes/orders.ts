@@ -35,8 +35,29 @@ ordersRouter.post('/', async (req, res) => {
     });
 
     try {
-      await sendOrderConfirmation(order);
-      await sendAdminNotification(order);
+      await sendOrderConfirmation({
+        orderId: order.orderId,
+        customerInfo: {
+          name: order.customerInfo!.name,
+          email: order.customerInfo!.email,
+          deliveryMethod: order.customerInfo!.deliveryMethod,
+          deliveryDate: order.customerInfo!.deliveryDate,
+        },
+        items: order.items.map((i) => ({ name: i.name ?? '', price: i.price ?? 0, quantity: i.quantity ?? 1 })),
+        total: order.total,
+        paymentMethod: order.paymentMethod,
+      });
+      await sendAdminNotification({
+        orderId: order.orderId,
+        customerInfo: {
+          name: order.customerInfo!.name,
+          email: order.customerInfo!.email,
+          phone: order.customerInfo!.phone,
+        },
+        total: order.total,
+        paymentMethod: order.paymentMethod,
+        items: order.items.map((i) => ({ name: i.name ?? '', quantity: i.quantity ?? 1 })),
+      });
     } catch (emailErr) {
       console.error('Error enviando email:', emailErr);
     }
