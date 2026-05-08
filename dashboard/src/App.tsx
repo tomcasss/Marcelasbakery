@@ -127,17 +127,17 @@ function DashboardApp({ onLogout }: { onLogout: () => void }) {
   const activeOrders = orders.filter((o) => !['delivered'].includes(o.orderStatus)).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF8F0] via-white to-[#f5f0eb]">
       {/* Navbar */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white border-b-2 border-[#cd733d]/10 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">La Gracia</h1>
-            <p className="text-xs text-[#cd733d] font-medium">Panel de administración</p>
+            <h1 className="text-2xl font-serif font-bold text-gray-900">La Gracia</h1>
+            <p className="text-xs text-[#cd733d] font-medium">Panel de Administración</p>
           </div>
           <div className="flex items-center gap-2">
             {/* Tabs de navegación */}
-            <nav className="flex bg-gray-100 rounded-lg p-1 mr-2">
+            <nav className="flex bg-gray-100 rounded-lg p-1 mr-2 gap-1">
               <button
                 onClick={() => setView('orders')}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${
