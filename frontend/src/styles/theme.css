@@ -1,25 +1,81 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Paleta oficial La Gracia */
+  /* ================================
+     PALETA OFICIAL LA GRACIA
+     ================================ */
   --primary-main: #cd733d;
   --primary-light: #e89360;
   --primary-dark: #b35f2f;
   --primary-lighter: #f4d4b8;
-  
+
   --complementary-turquoise: #369db1;
   --complementary-purple: #6d63ab;
   --complementary-rose: #dd667d;
   --complementary-blue: #387dae;
-  
+
   --neutral-off-white: #FFF8F0;
   --neutral-light-cream: #FFF4E8;
   --neutral-warm-gray: #F5F0EB;
-  
-  /* Fuentes y tamaños */
+
+  /* ================================
+     TIPOGRAFÍA
+     ================================ */
   --font-size: 16px;
   --font-serif: 'Playfair Display', 'Georgia', serif;
   --font-sans: 'Inter', 'system-ui', sans-serif;
+
+  /* ================================
+     ESPACIADO (SPACING SCALE)
+     ================================ */
+  --space-xs: 0.25rem;     /* 4px */
+  --space-sm: 0.5rem;      /* 8px */
+  --space-md: 1rem;        /* 16px */
+  --space-lg: 1.5rem;      /* 24px */
+  --space-xl: 2rem;        /* 32px */
+  --space-2xl: 3rem;       /* 48px */
+  --space-3xl: 4rem;       /* 64px */
+
+  /* ================================
+     SOMBRAS (SHADOW SCALE)
+     ================================ */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* ================================
+     DURACIONES DE ANIMACIONES
+     ================================ */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+
+  /* ================================
+     TIMING FUNCTIONS (EASING)
+     ================================ */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ================================
+     RESPONSIVE BREAKPOINTS
+     ================================ */
+  /* Mobile: 320px - 640px (iPhone SE, iPhone 12 mini, etc.) */
+  /* Tablet: 641px - 1024px (iPad, tablet devices) */
+  /* Desktop: 1025px+ (laptops, desktops) */
+  /* Large: 1280px+ (large monitors) */
+
+  /* ================================
+     TOUCH & POINTER SIZES
+     ================================ */
+  --touch-target: 48px;  /* Min recommended touch target size */
+  --hover-scale: 1.05;   /* Scale on hover for desktop */
+  --active-scale: 0.98;  /* Scale when pressed */
   
   /* Sistema de colores original adaptado */
   --background: #ffffff;
@@ -99,6 +155,7 @@
 }
 
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -125,10 +182,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -137,15 +190,57 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand Colors */
+  --color-brand-primary: var(--primary-main);
+  --color-brand-light: var(--primary-light);
+  --color-brand-dark: var(--primary-dark);
+  --color-brand-lighter: var(--primary-lighter);
+  --color-brand-turquoise: var(--complementary-turquoise);
+  --color-brand-purple: var(--complementary-purple);
+  --color-brand-rose: var(--complementary-rose);
+  --color-brand-blue: var(--complementary-blue);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Spacing */
+  --spacing-xs: var(--space-xs);
+  --spacing-sm: var(--space-sm);
+  --spacing-md: var(--space-md);
+  --spacing-lg: var(--space-lg);
+  --spacing-xl: var(--space-xl);
+  --spacing-2xl: var(--space-2xl);
+  --spacing-3xl: var(--space-3xl);
+
+  /* Shadows */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  /* Duration */
+  --duration-fast: var(--duration-fast);
+  --duration-normal: var(--duration-normal);
+  --duration-slow: var(--duration-slow);
+  --duration-slower: var(--duration-slower);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 transition-colors;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-smooth: always;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /**
