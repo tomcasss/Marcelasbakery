@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import { connectDb } from './db.js';
 import { ordersRouter } from './routes/orders.js';
 import { adminRouter } from './routes/admin.js';
@@ -10,6 +12,7 @@ import { uploadRouter } from './routes/upload.js';
 import { configRouter } from './routes/config.js';
 import { recipesRouter } from './routes/recipes.js';
 import { ingredientsRouter } from './routes/ingredients.js';
+import { authRouter } from './routes/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,8 +29,30 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Demasiados intentos de login, intenta en 15 minutos',
+});
+
+const ordersLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+});
+
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/orders', ordersLimiter);
+app.use('/api/upload', uploadLimiter);
 
 app.get('/api/health', (_, res) => res.json({ ok: true }));
+app.use('/api/auth', authRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/tilopay', tilopayRouter);

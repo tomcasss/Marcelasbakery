@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchSiteConfig, updateSiteConfigKey } from '../api';
+import { fetchConfig, updateConfig } from '../api';
 import { ImagePickerModal } from './ImagePickerModal';
 
 // Default fallbacks (same as what the frontend uses)
@@ -44,7 +44,7 @@ export function SiteImagesPanel() {
   const [pickerKey, setPickerKey] = useState<string | null>(null); // which slot is picking
 
   useEffect(() => {
-    fetchSiteConfig()
+    fetchConfig()
       .then((data) => setConfig(data))
       .catch(() => setError('No se pudo cargar la configuración. ¿Está el backend corriendo?'))
       .finally(() => setLoading(false));
@@ -58,7 +58,7 @@ export function SiteImagesPanel() {
     setError('');
     setSuccess('');
     try {
-      await updateSiteConfigKey(key, url);
+      await updateConfig(key, url);
       setConfig((prev) => ({ ...prev, [key]: url }));
       setSuccess(`"${SLOTS.find((s) => s.key === key)?.label}" actualizada ✓`);
       setTimeout(() => setSuccess(''), 3000);

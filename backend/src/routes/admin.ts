@@ -1,19 +1,10 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 import { Order } from '../models/Order.js';
+import { verifyToken } from '../middleware/auth.js';
 
 export const adminRouter = Router();
 
-// ── Middleware simple de autenticación por API key ──────────────────────────
-function requireAdminKey(req: Request, res: Response, next: NextFunction) {
-  const key = req.headers['x-admin-key'];
-  const adminKey = process.env.ADMIN_KEY || 'admin123';
-  if (key !== adminKey) {
-    return res.status(401).json({ error: 'No autorizado' });
-  }
-  next();
-}
-
-adminRouter.use(requireAdminKey);
+adminRouter.use(verifyToken);
 
 // ── GET /api/admin/orders  (con filtros opcionales) ──────────────────────────
 adminRouter.get('/orders', async (req, res) => {

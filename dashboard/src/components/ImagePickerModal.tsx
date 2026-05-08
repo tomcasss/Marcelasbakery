@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchCloudinaryImages, uploadProductImage } from '../api';
+import { fetchUploadedImages, uploadProductImage } from '../api';
 
 interface ImagePickerModalProps {
   onSelect: (url: string) => void;
@@ -7,7 +7,7 @@ interface ImagePickerModalProps {
 }
 
 export function ImagePickerModal({ onSelect, onClose }: ImagePickerModalProps) {
-  const [images, setImages] = useState<{ url: string; publicId: string; filename: string }[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -18,7 +18,7 @@ export function ImagePickerModal({ onSelect, onClose }: ImagePickerModalProps) {
     setLoading(true);
     setError('');
     try {
-      const data = await fetchCloudinaryImages('marcelasbakery/products');
+      const data = await fetchUploadedImages('marcelasbakery/products');
       setImages(data);
     } catch (err: any) {
       setError('No se pudieron cargar las imágenes de Cloudinary');
@@ -44,8 +44,8 @@ export function ImagePickerModal({ onSelect, onClose }: ImagePickerModalProps) {
     if (fileRef.current) fileRef.current.value = '';
   };
 
-  const filtered = images.filter((img) =>
-    !search || img.filename.toLowerCase().includes(search.toLowerCase()),
+  const filtered = images.filter((url) =>
+    !search || url.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -117,16 +117,16 @@ export function ImagePickerModal({ onSelect, onClose }: ImagePickerModalProps) {
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {filtered.map((img) => (
+              {filtered.map((url) => (
                 <button
-                  key={img.publicId}
-                  onClick={() => onSelect(img.url)}
+                  key={url}
+                  onClick={() => onSelect(url)}
                   className="group relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#cd733d] transition-all focus:outline-none focus:ring-2 focus:ring-[#cd733d]"
-                  title={img.filename}
+                  title={url}
                 >
                   <img
-                    src={img.url}
-                    alt={img.filename}
+                    src={url}
+                    alt={url}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
                   />

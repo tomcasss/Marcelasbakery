@@ -5,6 +5,15 @@ export async function connectDb() {
   if (!uri) {
     throw new Error('Falta MONGODB_URI en .env');
   }
-  await mongoose.connect(uri);
-  console.log('Conectado a MongoDB');
+
+  try {
+    await mongoose.connect(uri);
+    console.log('✓ Conectado a MongoDB');
+  } catch (err) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠ MongoDB no disponible - continuando en modo prueba (sin persistencia)');
+      return;
+    }
+    throw err;
+  }
 }

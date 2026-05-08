@@ -1,10 +1,13 @@
 ﻿import { Router } from "express";
 import { Ingredient } from "../models/Ingredient.js";
+import { verifyToken } from "../middleware/auth.js";
+import { validateRequest } from "../middleware/validation.js";
+import { CreateIngredientSchema, UpdateIngredientSchema } from "../schemas/validation.js";
 
 export const ingredientsRouter = Router();
 
 // GET /api/admin/ingredients
-ingredientsRouter.get("/", async (_req, res) => {
+ingredientsRouter.get("/", verifyToken, async (_req, res) => {
   try {
     const ingredients = await Ingredient.find().sort({ name: 1 });
     res.json(ingredients);
@@ -14,7 +17,7 @@ ingredientsRouter.get("/", async (_req, res) => {
 });
 
 // GET /api/admin/ingredients/:id
-ingredientsRouter.get("/:id", async (req, res) => {
+ingredientsRouter.get("/:id", verifyToken, async (req, res) => {
   try {
     const ingredient = await Ingredient.findById(req.params.id);
     if (!ingredient) return res.status(404).json({ error: "Ingrediente no encontrado" });
@@ -25,7 +28,7 @@ ingredientsRouter.get("/:id", async (req, res) => {
 });
 
 // POST /api/admin/ingredients
-ingredientsRouter.post("/", async (req, res) => {
+ingredientsRouter.post("/", verifyToken, validateRequest(CreateIngredientSchema), async (req, res) => {
   try {
     const ingredient = await Ingredient.create(req.body);
     res.status(201).json(ingredient);
@@ -35,7 +38,7 @@ ingredientsRouter.post("/", async (req, res) => {
 });
 
 // PUT /api/admin/ingredients/:id
-ingredientsRouter.put("/:id", async (req, res) => {
+ingredientsRouter.put("/:id", verifyToken, validateRequest(UpdateIngredientSchema), async (req, res) => {
   try {
     const ingredient = await Ingredient.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -49,7 +52,7 @@ ingredientsRouter.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/admin/ingredients/:id
-ingredientsRouter.delete("/:id", async (req, res) => {
+ingredientsRouter.delete("/:id", verifyToken, async (req, res) => {
   try {
     const ingredient = await Ingredient.findByIdAndDelete(req.params.id);
     if (!ingredient) return res.status(404).json({ error: "Ingrediente no encontrado" });
