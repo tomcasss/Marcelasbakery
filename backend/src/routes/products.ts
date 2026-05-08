@@ -1,15 +1,10 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 import { Product } from '../models/Product.js';
+import { verifyToken } from '../middleware/auth.js';
+import { validateRequest } from '../middleware/validation.js';
+import { CreateProductSchema, UpdateProductSchema } from '../schemas/validation.js';
 
 export const productsRouter = Router();
-
-// ── Middleware de autenticación admin ──────────────────────────────────────────
-function adminOnly(req: Request, res: Response, next: NextFunction) {
-  const key = req.headers['x-admin-key'];
-  const expected = process.env.ADMIN_KEY || 'admin123';
-  if (key !== expected) return res.status(401).json({ error: 'No autorizado' });
-  next();
-}
 
 // ── GET /api/products  — público, sólo disponibles ────────────────────────────
 productsRouter.get('/', async (_req, res) => {
@@ -22,7 +17,7 @@ productsRouter.get('/', async (_req, res) => {
 });
 
 // ── GET /api/products/all  — admin, incluye no disponibles ────────────────────
-productsRouter.get('/all', adminOnly, async (_req, res) => {
+productsRouter.get('/all', verifyToken, async (_req, res) => {
   try {
     const products = await Product.find().sort({ sortOrder: 1, createdAt: 1 });
     res.json(products);
@@ -33,7 +28,7 @@ productsRouter.get('/all', adminOnly, async (_req, res) => {
 
 // ── POST /api/products/seed  — admin, importa productos de ejemplo ─────────────
 // Solo siembra si la colección está vacía
-productsRouter.post('/seed', adminOnly, async (_req, res) => {
+productsRouter.post('/seed', verifyToken, async (_req, res) => {
   try {
     const existing = await Product.countDocuments();
     if (existing > 0) {
@@ -69,7 +64,7 @@ productsRouter.post('/seed', adminOnly, async (_req, res) => {
 });
 
 // ── POST /api/products  — admin, crear producto ───────────────────────────────
-productsRouter.post('/', adminOnly, async (req, res) => {
+productsRouter.post('/', verifyToken, validateRequest(CreateProductSchema), async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
@@ -80,7 +75,7 @@ productsRouter.post('/', adminOnly, async (req, res) => {
 });
 
 // ── PUT /api/products/:id  — admin, editar producto ───────────────────────────
-productsRouter.put('/:id', adminOnly, async (req, res) => {
+productsRouter.put('/:id', verifyToken, validateRequest(UpdateProductSchema), async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
@@ -91,7 +86,7 @@ productsRouter.put('/:id', adminOnly, async (req, res) => {
 });
 
 // ── DELETE /api/products/:id  — admin, eliminar producto ─────────────────────
-productsRouter.delete('/:id', adminOnly, async (req, res) => {
+productsRouter.delete('/:id', verifyToken, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });

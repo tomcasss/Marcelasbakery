@@ -1,16 +1,14 @@
 import { Router } from 'express';
 import { Order } from '../models/Order.js';
 import { sendOrderConfirmation, sendAdminNotification } from '../services/email.js';
+import { validateRequest } from '../middleware/validation.js';
+import { CreateOrderSchema } from '../schemas/validation.js';
 
 export const ordersRouter = Router();
 
-ordersRouter.post('/', async (req, res) => {
+ordersRouter.post('/', validateRequest(CreateOrderSchema), async (req, res) => {
   try {
     const { items, customerInfo, total, deliveryFee, paymentMethod, paymentProofUrl } = req.body;
-
-    if (!items?.length || !customerInfo?.name || !customerInfo?.email || !customerInfo?.phone || total == null || !paymentMethod) {
-      return res.status(400).json({ error: 'Faltan datos: items, customerInfo (name, email, phone), total, paymentMethod' });
-    }
 
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Order, OrderStatus, PaymentStatus } from './types';
-import { fetchOrders } from './api';
+import { fetchOrders, logout } from './api';
 import { OrderCard } from './components/OrderCard';
 import { OrderDetail } from './components/OrderDetail';
 import { ProductsPanel } from './components/ProductsPanel';
@@ -8,8 +8,6 @@ import { SiteImagesPanel } from './components/SiteImagesPanel';
 import { CostCalculatorPanel } from './components/CostCalculatorPanel';
 import { IngredientsPanel } from './components/IngredientsPanel';
 import { LoginPage } from './components/LoginPage';
-
-const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'admin123';
 
 const ORDER_STATUS_FILTER = [
   { value: 'all', label: 'Todos' },
@@ -28,9 +26,34 @@ const PAYMENT_STATUS_FILTER = [
 ];
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(() =>
-    localStorage.getItem('dashboard_key') === ADMIN_KEY
-  );
+  const [authenticated, setAuthenticated] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await fetchOrders({ limit: 1 });
+        setAuthenticated(true);
+      } catch {
+        setAuthenticated(false);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#cd733d] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p>Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!authenticated) {
     return <LoginPage onLogin={() => setAuthenticated(true)} />;
@@ -38,8 +61,8 @@ export default function App() {
 
   return (
     <DashboardApp
-      onLogout={() => {
-        localStorage.removeItem('dashboard_key');
+      onLogout={async () => {
+        await logout();
         setAuthenticated(false);
       }}
     />

@@ -1,10 +1,13 @@
 ﻿import { Router } from "express";
 import { Recipe } from "../models/Recipe.js";
+import { verifyToken } from "../middleware/auth.js";
+import { validateRequest } from "../middleware/validation.js";
+import { CreateRecipeSchema } from "../schemas/validation.js";
 
 export const recipesRouter = Router();
 
 // GET /api/admin/recipes
-recipesRouter.get("/", async (_req, res) => {
+recipesRouter.get("/", verifyToken, async (_req, res) => {
   try {
     const recipes = await Recipe.find().sort({ createdAt: -1 });
     res.json(recipes);
@@ -14,7 +17,7 @@ recipesRouter.get("/", async (_req, res) => {
 });
 
 // GET /api/admin/recipes/:id
-recipesRouter.get("/:id", async (req, res) => {
+recipesRouter.get("/:id", verifyToken, async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
     if (!recipe) return res.status(404).json({ error: "Receta no encontrada" });
@@ -25,7 +28,7 @@ recipesRouter.get("/:id", async (req, res) => {
 });
 
 // POST /api/admin/recipes
-recipesRouter.post("/", async (req, res) => {
+recipesRouter.post("/", verifyToken, validateRequest(CreateRecipeSchema), async (req, res) => {
   try {
     const recipe = await Recipe.create(req.body);
     res.status(201).json(recipe);
@@ -35,7 +38,7 @@ recipesRouter.post("/", async (req, res) => {
 });
 
 // PUT /api/admin/recipes/:id
-recipesRouter.put("/:id", async (req, res) => {
+recipesRouter.put("/:id", verifyToken, async (req, res) => {
   try {
     const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -49,7 +52,7 @@ recipesRouter.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/admin/recipes/:id
-recipesRouter.delete("/:id", async (req, res) => {
+recipesRouter.delete("/:id", verifyToken, async (req, res) => {
   try {
     const recipe = await Recipe.findByIdAndDelete(req.params.id);
     if (!recipe) return res.status(404).json({ error: "Receta no encontrada" });

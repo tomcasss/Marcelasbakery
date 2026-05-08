@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { SiteConfig } from '../models/SiteConfig.js';
+import { verifyToken } from '../middleware/auth.js';
 
 export const configRouter = Router();
 
@@ -16,11 +17,7 @@ configRouter.get('/', async (_, res) => {
 });
 
 // Admin — upsert a single key
-configRouter.put('/:key', async (req, res) => {
-  const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY) {
-    return res.status(401).json({ error: 'No autorizado' });
-  }
+configRouter.put('/:key', verifyToken, async (req, res) => {
   const { key } = req.params;
   const { value } = req.body;
   if (typeof value !== 'string' || !value.trim()) {

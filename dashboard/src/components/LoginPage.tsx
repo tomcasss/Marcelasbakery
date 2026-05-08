@@ -1,26 +1,23 @@
 import { useState } from 'react';
-
-const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'admin123';
+import { login } from '../api';
 
 export function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    // Small delay for UX
-    setTimeout(() => {
-      if (password === ADMIN_KEY) {
-        localStorage.setItem('dashboard_key', password);
-        onLogin();
-      } else {
-        setError('Contraseña incorrecta. Intentá de nuevo.');
-        setLoading(false);
-      }
-    }, 350);
+
+    try {
+      await login(password);
+      onLogin();
+    } catch (err: any) {
+      setError(err.message || 'Error de login');
+      setLoading(false);
+    }
   };
 
   return (

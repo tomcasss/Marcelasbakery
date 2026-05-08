@@ -1,6 +1,7 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 import multer from 'multer';
 import { uploadBuffer, listImages } from '../services/cloudinary.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -14,15 +15,8 @@ const upload = multer({
 
 export const uploadRouter = Router();
 
-function adminOnly(req: Request, res: Response, next: NextFunction) {
-  const key = req.headers['x-admin-key'];
-  const expected = process.env.ADMIN_KEY || 'admin123';
-  if (key !== expected) return res.status(401).json({ error: 'No autorizado' });
-  next();
-}
-
 // GET /api/upload/images?folder=marcelasbakery  — admin, lista imágenes de Cloudinary
-uploadRouter.get('/images', adminOnly, async (req, res) => {
+uploadRouter.get('/images', verifyToken, async (req, res) => {
   try {
     const folder = (req.query.folder as string) || 'marcelasbakery/products';
     const images = await listImages(folder);
@@ -34,7 +28,7 @@ uploadRouter.get('/images', adminOnly, async (req, res) => {
 });
 
 // POST /api/upload/product-image  — admin únicamente
-uploadRouter.post('/product-image', adminOnly, upload.single('image'), async (req, res) => {
+uploadRouter.post('/product-image', verifyToken, upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No se recibió ninguna imagen' });
   try {
     const url = await uploadBuffer(req.file.buffer, 'marcelasbakery/products');

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Order, OrderStatus, PaymentStatus } from '../types';
 import { OrderStatusBadge, PaymentStatusBadge, ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from './StatusBadge';
-import { updateOrderStatus, updatePaymentStatus } from '../api';
+import { updateOrderStatus, updateOrderPaymentStatus } from '../api';
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   card: '💳 Tarjeta',
@@ -37,7 +37,7 @@ export function OrderDetail({ order, onClose, onUpdated }: OrderDetailProps) {
     setUpdatingPayment(true);
     setError('');
     try {
-      const updated = await updatePaymentStatus(order.orderId, e.target.value as PaymentStatus);
+      const updated = await updateOrderPaymentStatus(order.orderId, e.target.value as PaymentStatus);
       onUpdated(updated);
     } catch (err) {
       setError('Error al actualizar estado de pago');
