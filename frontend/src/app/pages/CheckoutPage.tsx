@@ -4,7 +4,12 @@ import { CartItem } from '../components/Cart';
 import { useCheckout } from '../context/CheckoutContext';
 import { DeliveryMap } from '../components/DeliveryMap';
 import { startTilopayCheckout } from '../services/api';
-import { CreditCard, Smartphone, Building2, ArrowLeft, ShoppingBag, Calendar, MapPin, User, Mail, Phone, MessageSquare, Upload, X as XIcon } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { FormInput } from '../components/ui/form-input';
+import { FormTextarea } from '../components/ui/form-textarea';
+import { FormError } from '../components/ui/form-error';
+import { cn } from '../components/ui/utils';
+import { CreditCard, Smartphone, Building2, ArrowLeft, ShoppingBag, Calendar, MapPin, User, Mail, Phone, MessageSquare, Upload, X as XIcon, CheckCircle2 } from 'lucide-react';
 
 interface CheckoutPageProps {
   items: CartItem[];
@@ -19,7 +24,8 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
   const [step, setStep] = useState(1); // 1: Info, 2: Payment, 3: Confirmation
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'sinpe' | 'transfer'>('card');
   const [processing, setProcessing] = useState(false);
-  
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -124,21 +130,26 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
   };
 
   const validateStep1 = () => {
-    if (!formData.name || !formData.email || !formData.phone || !formData.deliveryDate) {
-      alert('Por favor complete todos los campos requeridos');
-      return false;
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) errors.name = 'El nombre es requerido';
+    if (!formData.email.trim()) {
+      errors.email = 'El email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email inválido';
     }
+    if (!formData.phone.trim()) errors.phone = 'El teléfono es requerido';
+    if (!formData.deliveryDate) errors.deliveryDate = 'La fecha de entrega es requerida';
+
     if (formData.deliveryMethod === 'delivery') {
-      if (!deliveryCoords) {
-        alert('Por favor marca tu ubicación de entrega en el mapa');
-        return false;
-      }
-      if (calculatedDeliveryFee === null) {
-        alert('Tu ubicación está fuera de la zona de cobertura (máximo 20 km)');
-        return false;
+      if (!deliveryCoords) errors.deliveryLocation = 'Por favor marca tu ubicación en el mapa';
+      if (calculatedDeliveryFee === null && deliveryCoords) {
+        errors.deliveryLocation = 'Tu ubicación está fuera de la zona de cobertura';
       }
     }
-    return true;
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleContinueToPayment = () => {
@@ -207,33 +218,42 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
         <div className="mb-8">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#cd733d] transition-colors mb-4"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 active:scale-95"
           >
             <ArrowLeft className="w-5 h-5" />
             Volver al carrito
           </button>
           
           {/* Progress Steps */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className={`flex items-center gap-2 ${step >= 1 ? 'text-[#cd733d]' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-[#cd733d] text-white' : 'bg-gray-200'}`}>
+          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8">
+            <div className={cn("flex items-center gap-2 transition-colors", step >= 1 ? 'text-primary' : 'text-muted-foreground')}>
+              <div className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
+                step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )}>
                 1
               </div>
-              <span className="hidden sm:inline font-semibold">Información</span>
+              <span className="hidden sm:inline font-semibold text-sm">Información</span>
             </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center gap-2 ${step >= 2 ? 'text-[#cd733d]' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-[#cd733d] text-white' : 'bg-gray-200'}`}>
+            <div className={cn("h-0.5 w-8 sm:w-12 transition-colors", step >= 2 ? 'bg-primary' : 'bg-muted')}></div>
+            <div className={cn("flex items-center gap-2 transition-colors", step >= 2 ? 'text-primary' : 'text-muted-foreground')}>
+              <div className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
+                step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )}>
                 2
               </div>
-              <span className="hidden sm:inline font-semibold">Pago</span>
+              <span className="hidden sm:inline font-semibold text-sm">Pago</span>
             </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center gap-2 ${step >= 3 ? 'text-[#cd733d]' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-[#cd733d] text-white' : 'bg-gray-200'}`}>
+            <div className={cn("h-0.5 w-8 sm:w-12 transition-colors", step >= 3 ? 'bg-primary' : 'bg-muted')}></div>
+            <div className={cn("flex items-center gap-2 transition-colors", step >= 3 ? 'text-primary' : 'text-muted-foreground')}>
+              <div className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all",
+                step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )}>
                 3
               </div>
-              <span className="hidden sm:inline font-semibold">Confirmación</span>
+              <span className="hidden sm:inline font-semibold text-sm">Confirmación</span>
             </div>
           </div>
         </div>
@@ -254,29 +274,36 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                     <div className="grid grid-cols-2 gap-4">
                       <button
                         type="button"
-                        onClick={() => setFormData({ ...formData, deliveryMethod: 'pickup' })}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        onClick={() => {
+                          setFormData({ ...formData, deliveryMethod: 'pickup' });
+                          setValidationErrors(prev => ({ ...prev, deliveryLocation: '' }));
+                        }}
+                        className={cn(
+                          "p-4 sm:p-5 rounded-lg border-2 transition-all min-h-24 sm:min-h-28",
+                          "flex flex-col items-center justify-center gap-2 active:scale-95",
                           formData.deliveryMethod === 'pickup'
-                            ? 'border-[#cd733d] bg-[#cd733d]/5'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-muted-foreground hover:bg-accent'
+                        )}
                       >
-                        <ShoppingBag className="w-6 h-6 mx-auto mb-2 text-[#cd733d]" />
-                        <p className="font-semibold">Recoger</p>
-                        <p className="text-xs text-gray-500">Gratis</p>
+                        <ShoppingBag className="w-6 h-6 text-primary" />
+                        <p className="font-semibold text-sm text-center">Recoger</p>
+                        <p className="text-xs text-muted-foreground">Gratis</p>
                       </button>
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, deliveryMethod: 'delivery' })}
-                        className={`p-4 rounded-lg border-2 transition-all ${
+                        className={cn(
+                          "p-4 sm:p-5 rounded-lg border-2 transition-all min-h-24 sm:min-h-28",
+                          "flex flex-col items-center justify-center gap-2 active:scale-95",
                           formData.deliveryMethod === 'delivery'
-                            ? 'border-[#cd733d] bg-[#cd733d]/5'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-muted-foreground hover:bg-accent'
+                        )}
                       >
-                        <MapPin className="w-6 h-6 mx-auto mb-2 text-[#cd733d]" />
-                        <p className="font-semibold">Entrega</p>
-                        <p className="text-xs text-gray-500">
+                        <MapPin className="w-6 h-6 text-primary" />
+                        <p className="font-semibold text-sm text-center">Entrega</p>
+                        <p className="text-xs text-muted-foreground">
                           {deliveryCoords
                             ? calculatedDeliveryFee !== null
                               ? `₡${calculatedDeliveryFee.toLocaleString()}`
@@ -288,127 +315,99 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                   </div>
 
                   {/* Nombre */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <User className="w-4 h-4 inline mr-2" />
-                      Nombre Completo *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                      placeholder="Juan Pérez"
-                      required
-                    />
-                  </div>
+                  <FormInput
+                    type="text"
+                    name="name"
+                    label="Nombre Completo"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Juan Pérez"
+                    required
+                    error={validationErrors.name}
+                  />
 
                   {/* Email y Teléfono */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <Mail className="w-4 h-4 inline mr-2" />
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                        placeholder="tu@email.com"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <Phone className="w-4 h-4 inline mr-2" />
-                        Teléfono *
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                        placeholder="8415-2888"
-                        required
-                      />
-                    </div>
+                    <FormInput
+                      type="email"
+                      name="email"
+                      label="Email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="tu@email.com"
+                      required
+                      error={validationErrors.email}
+                    />
+                    <FormInput
+                      type="tel"
+                      name="phone"
+                      label="Teléfono"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="8415-2888"
+                      required
+                      error={validationErrors.phone}
+                    />
                   </div>
 
                   {/* Mapa de entrega (solo si es delivery) */}
                   {formData.deliveryMethod === 'delivery' && (
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          <MapPin className="w-4 h-4 inline mr-2" />
-                          Ubicación de Entrega *
+                        <label className="block text-base font-medium mb-2 text-foreground">
+                          Ubicación de Entrega
+                          <span className="text-destructive ml-1">*</span>
                         </label>
                         <DeliveryMap
                           onLocationSelected={handleMapLocation}
                           initialCoords={deliveryCoords}
                         />
+                        {validationErrors.deliveryLocation && (
+                          <FormError message={validationErrors.deliveryLocation} type="error" />
+                        )}
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Señas adicionales (opcional)
-                        </label>
-                        <input
-                          type="text"
-                          name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                          placeholder="Casa azul, 100m norte del parque..."
-                        />
-                      </div>
+                      <FormInput
+                        type="text"
+                        name="address"
+                        label="Señas adicionales"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        placeholder="Casa azul, 100m norte del parque..."
+                        helperText="Instrucciones para encontrar tu dirección"
+                      />
                     </div>
                   )}
 
                   {/* Fecha de entrega */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <Calendar className="w-4 h-4 inline mr-2" />
-                      Fecha de {formData.deliveryMethod === 'pickup' ? 'Retiro' : 'Entrega'} *
-                    </label>
-                    <input
-                      type="date"
-                      name="deliveryDate"
-                      value={formData.deliveryDate}
-                      onChange={handleInputChange}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      📅 Recuerda: Pedidos para martes hasta sábado 3:00 PM / Pedidos para viernes hasta miércoles 3:00 PM
-                    </p>
-                  </div>
+                  <FormInput
+                    type="date"
+                    name="deliveryDate"
+                    label={`Fecha de ${formData.deliveryMethod === 'pickup' ? 'Retiro' : 'Entrega'}`}
+                    value={formData.deliveryDate}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                    error={validationErrors.deliveryDate}
+                    helperText="📅 Martes-Sábado 3:00 PM / Viernes-Miércoles 3:00 PM"
+                  />
 
                   {/* Notas */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <MessageSquare className="w-4 h-4 inline mr-2" />
-                      Notas Adicionales (Opcional)
-                    </label>
-                    <textarea
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#cd733d] focus:outline-none"
-                      placeholder="Instrucciones especiales, alergias, etc..."
-                    />
-                  </div>
+                  <FormTextarea
+                    name="notes"
+                    label="Notas Adicionales"
+                    value={formData.notes}
+                    onChange={handleInputChange}
+                    placeholder="Instrucciones especiales, alergias, etc..."
+                    helperText="(Opcional) Cualquier información adicional para la panadería"
+                  />
 
-                  <button
+                  <Button
                     onClick={handleContinueToPayment}
-                    className="w-full bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white py-4 rounded-lg hover:shadow-xl transition-all duration-300 font-semibold"
+                    size="lg"
+                    className="w-full h-12"
                   >
                     Continuar al Pago
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -421,46 +420,52 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                 <div className="space-y-4 mb-6">
                   <button
                     onClick={() => setPaymentMethod('card')}
-                    className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                    className={cn(
+                      "w-full p-4 sm:p-5 rounded-lg border-2 transition-all flex items-center gap-4 min-h-20",
+                      "active:scale-95 hover:shadow-sm",
                       paymentMethod === 'card'
-                        ? 'border-[#cd733d] bg-[#cd733d]/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    )}
                   >
-                    <CreditCard className="w-6 h-6 text-[#cd733d]" />
+                    <CreditCard className="w-6 h-6 text-primary shrink-0" />
                     <div className="text-left flex-1">
                       <p className="font-semibold">Tarjeta de Crédito/Débito</p>
-                      <p className="text-sm text-gray-500">Pago seguro con Tilopay</p>
+                      <p className="text-sm text-muted-foreground">Pago seguro con Tilopay</p>
                     </div>
                   </button>
 
                   <button
                     onClick={() => setPaymentMethod('sinpe')}
-                    className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                    className={cn(
+                      "w-full p-4 sm:p-5 rounded-lg border-2 transition-all flex items-center gap-4 min-h-20",
+                      "active:scale-95 hover:shadow-sm",
                       paymentMethod === 'sinpe'
-                        ? 'border-[#cd733d] bg-[#cd733d]/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    )}
                   >
-                    <Smartphone className="w-6 h-6 text-[#369db1]" />
+                    <Smartphone className="w-6 h-6 text-[#369db1] shrink-0" />
                     <div className="text-left flex-1">
                       <p className="font-semibold">SINPE Móvil</p>
-                      <p className="text-sm text-gray-500">Pago 100% anticipado</p>
+                      <p className="text-sm text-muted-foreground">Pago 100% anticipado</p>
                     </div>
                   </button>
 
                   <button
                     onClick={() => setPaymentMethod('transfer')}
-                    className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                    className={cn(
+                      "w-full p-4 sm:p-5 rounded-lg border-2 transition-all flex items-center gap-4 min-h-20",
+                      "active:scale-95 hover:shadow-sm",
                       paymentMethod === 'transfer'
-                        ? 'border-[#cd733d] bg-[#cd733d]/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-muted-foreground'
+                    )}
                   >
-                    <Building2 className="w-6 h-6 text-[#6d63ab]" />
+                    <Building2 className="w-6 h-6 text-[#6d63ab] shrink-0" />
                     <div className="text-left flex-1">
                       <p className="font-semibold">Transferencia Bancaria</p>
-                      <p className="text-sm text-gray-500">Pago 100% anticipado</p>
+                      <p className="text-sm text-muted-foreground">Pago 100% anticipado</p>
                     </div>
                   </button>
                 </div>
@@ -571,19 +576,22 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                 )}
 
                 <div className="flex gap-4">
-                  <button
+                  <Button
                     onClick={() => setStep(1)}
-                    className="flex-1 border-2 border-[#cd733d] text-[#cd733d] py-4 rounded-lg hover:bg-[#cd733d]/5 transition-all font-semibold"
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 h-12"
                   >
                     Volver
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handlePayment}
                     disabled={processing}
-                    className="flex-1 bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white py-4 rounded-lg hover:shadow-xl transition-all duration-300 font-semibold disabled:opacity-50"
+                    size="lg"
+                    className="flex-1 h-12"
                   >
                     {processing ? 'Procesando...' : 'Confirmar Pedido'}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -627,22 +635,29 @@ export function CheckoutPage({ items, total, onClose }: CheckoutPageProps) {
                 </div>
 
                 <div className="space-y-3">
-                  <button
+                  <Button
                     onClick={() => {
                       onClose();
                       navigate('/');
                     }}
-                    className="block w-full bg-gradient-to-r from-[#cd733d] to-[#e89360] text-white py-4 rounded-lg hover:shadow-xl transition-all font-semibold"
+                    size="lg"
+                    className="w-full h-12"
                   >
                     Volver al Inicio
-                  </button>
+                  </Button>
                   <a
                     href="https://wa.me/50684152888?text=Hola,%20tengo%20una%20consulta%20sobre%20mi%20pedido"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full border-2 border-[#25D366] text-[#25D366] py-4 rounded-lg hover:bg-[#25D366]/5 transition-all font-semibold text-center"
+                    className="block"
                   >
-                    ¿Dudas? Contactar por WhatsApp
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full h-12 border-[#25D366] text-[#25D366] hover:bg-[#25D366]/5"
+                    >
+                      ¿Dudas? Contactar por WhatsApp
+                    </Button>
                   </a>
                 </div>
               </div>
